@@ -36,6 +36,7 @@ strat.init = function () {
   //Buy/sell-states and keeping track of money
   this.assets = {
     age: 0,
+    neverTraded: true, //hasn't made any trade yet, can advice both buy and sell
     boughtIn: false,
     currentCandle: null,
     boughtCandle: null,
@@ -69,7 +70,7 @@ strat.init = function () {
   log.debug(this.prefix, 'Strategy:', this.name, this.version);
   log.debug(this.prefix, 'EMA short:', this.settings.short, 'candles');
   log.debug(this.prefix, 'EMA mid:', this.settings.mid, 'candles');
-  log.debug(this.prefix, 'EMA long:', this.settings.long,'candles');
+  log.debug(this.prefix, 'EMA long:', this.settings.long, 'candles');
   log.debug(this.prefix, 'Warmup:', this.requiredHistory, 'candles');
   log.debug(this.prefix, 'Stop-loss:', this.settings.stoploss, '%');
   log.debug(this.prefix, 'Bot suicides on losing', this.settings.maxlostprincipal, '% principal');
@@ -165,18 +166,20 @@ strat.decideSellAdvice = function (action) {
 strat.giveAdvice = function (candle, buy, sell, msg) {
   var a = this.assets;
 
-  if (buy && !sell && !a.boughtIn) {
+  if (buy && !sell && (!a.boughtIn || a.neverTraded)) {
     //advice long
     this.advice('long');
     //update assets & log
+    a.neverTraded = false;
     a.boughtIn = true;
     a.boughtCandle = candle;
     this.logBuy(candle, msg);
     return;
-  } else if (!buy && sell && a.boughtIn) {
+  } else if (!buy && sell && (a.boughtIn || a.neverTraded)) {
     //advice short
     this.advice('short');
     //update assets & log
+    a.neverTraded = false;
     a.boughtIn = false;
     a.soldCandle = candle;
     this.logSell(candle, msg);
