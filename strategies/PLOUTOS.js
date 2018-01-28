@@ -290,7 +290,7 @@ strat.log = function () {
 strat.emaToString = function (emaState, crosses) {
   let sCross = 'C:' + crosses.cross;
   let sShort = ' S:' + emaState.short.toFixed(2) + '(' + crosses.shortDiff.toFixed(2) + ')';
-  let sLong = ' M:' + emaState.long.toFixed(2) + '(' + crosses.longDiff.toFixed(2) + ')';
+  let sLong = ' L:' + emaState.long.toFixed(2) + '(' + crosses.longDiff.toFixed(2) + ')';
   return sCross + sShort + sLong;
 }
 
