@@ -1,0 +1,10 @@
+[Unit]
+Description=Gekko LIVE tradebot
+After=multi-user.target
+ 
+[Service]
+Type=simple
+ExecStart=/home/pi/gekko/start-conf-and-log-to-file.sh
+ 
+[Install]
+WantedBy=multi-user.target

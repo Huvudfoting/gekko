@@ -1,0 +1,17 @@
+1) Start screen:
+screen
+
+2 Start gekko service:
+./start-conf-and-log-to-file.sh
+
+3) Detach screen
+Ctrl-a d
+
+You can now log off and gekko keeps running.
+After logging back att a later time...
+
+4) Re-attach to screen
+screen -r
+
+5) To stop gekko, kill screen
+Ctrl-a k (and confirm)

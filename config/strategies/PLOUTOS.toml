@@ -1,0 +1,8 @@
+short = 20
+mid = 40
+long = 84
+stoploss = 8
+maxlostprincipal = 40
+assumefee = 0.05
+assumeslippage = 0.05
+verbose = true

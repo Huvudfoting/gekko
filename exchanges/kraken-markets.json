@@ -551,7 +551,7 @@
       ],
       "book": "XXBTZEUR",
       "minimalOrder": {
-        "amount": 0.01,
+        "amount": 0.02,
         "unit": "asset"
       },
       "precision": 1
