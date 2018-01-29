@@ -163,7 +163,7 @@ strat.decideSellAdvice = function (action) {
     sell = true;
   } else if (action === 'bothDown' && a.neverTraded) {
     sell = true;
-  } 
+  }
 
   return sell;
 };
@@ -175,23 +175,30 @@ strat.giveAdvice = function (candle, buy, sell, msg) {
     //advice long
     this.advice('long');
     //update assets & log
-    a.neverTraded = false;
-    a.boughtIn = true;
-    a.boughtCandle = candle;
+    this.updateTrade(true, candle);
     this.logBuy(candle, msg);
     return;
   } else if (!buy && sell && (a.boughtIn || a.neverTraded)) {
     //advice short
     this.advice('short');
     //update assets & log
-    a.neverTraded = false;
-    a.boughtIn = false;
-    a.soldCandle = candle;
+    this.updateTrade(false, candle);
     this.logSell(candle, msg);
     return;
   }
 
   this.advice();
+}
+
+strat.updateTrade = function (isBuy, candle) {
+  let a = this.assets;
+  a.neverTraded = false;
+  a.boughtIn = isBuy;
+  if (isBuy) {
+    a.boughtCandle = candle;
+  } else {
+    a.soldCandle = candle;
+  }
 }
 
 strat.logBuy = function (candle, msg) {
