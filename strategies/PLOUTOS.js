@@ -144,22 +144,27 @@ strat.check = function (candle) {
 
 // Decide advice to trader
 strat.decideBuyAdvice = function (action) {
-  var buy = false;
+  let a = this.assets;
+  let buy = false;
   if (action === 'dblGoldenCross') {
     buy = true;
-  } else if (action === 'goldenCross') {
+  } else if (action === 'bothUp' && a.neverTraded) {
     buy = true;
   }
   return buy;
 };
 
 strat.decideSellAdvice = function (action) {
-  var sell = false;
+  let a = this.assets;
+  let sell = false;
   if (action === 'dblDeathCross') {
     sell = true;
   } else if (action === 'deathCross') {
     sell = true;
-  }
+  } else if (action === 'bothDown' && a.neverTraded) {
+    sell = true;
+  } 
+
   return sell;
 };
 
