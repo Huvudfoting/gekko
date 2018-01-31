@@ -6,7 +6,7 @@ var log = require('../core/log.js');
 var method = {};
 
 // prepare everything our method needs
-method.init = function() {
+method.init = function () {
   this.name = 'DEMA';
 
   this.currentTrend;
@@ -17,14 +17,16 @@ method.init = function() {
 }
 
 // what happens on every new candle?
-method.update = function(candle) {
-  this.countdown--
-  log.info('#', 'Countdown:', this.countdown, 'candles')
+method.update = function (candle) {
+  if (this.countdown > 0) {
+    this.countdown--
+      log.info('#', 'Countdown:', this.countdown, 'candles')
+  }
 }
 
 // for debugging purposes: log the last calculated
 // EMAs and diff.
-method.log = function() {
+method.log = function () {
   var dema = this.indicators.dema;
 
   log.info('#', 'Calculated DEMA properties for candle:');
@@ -32,26 +34,26 @@ method.log = function() {
   log.info('#', 'Age:', dema.short.age, 'candles');
 }
 
-method.check = function(candle) {
+method.check = function (candle) {
   var dema = this.indicators.dema;
   var diff = dema.result;
   var price = candle.close;
 
   var message = '@ ' + price.toFixed(8) + ' (' + diff.toFixed(5) + ')';
 
-  if(diff > this.settings.thresholds.up) {
+  if (diff > this.settings.thresholds.up) {
     log.info('#', 'UPTREND', message);
 
-    if(this.currentTrend !== 'up') {
+    if (this.currentTrend !== 'up') {
       this.currentTrend = 'up';
       this.advice('long');
     } else
       this.advice();
 
-  } else if(diff < this.settings.thresholds.down) {
+  } else if (diff < this.settings.thresholds.down) {
     log.info('#', 'DOWNTREND', message);
 
-    if(this.currentTrend !== 'down') {
+    if (this.currentTrend !== 'down') {
       this.currentTrend = 'down';
       this.advice('short');
     } else
