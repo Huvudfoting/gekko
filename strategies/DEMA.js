@@ -18,7 +18,7 @@ method.init = function () {
 
 // what happens on every new candle?
 method.update = function (candle) {
-  if (this.countdown > 0) {
+  if (this.countdown < 0) {
     this.countdown--
       log.info('#', 'Countdown:', this.countdown, 'candles')
   }
