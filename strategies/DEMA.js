@@ -11,14 +11,15 @@ method.init = function() {
 
   this.currentTrend;
   this.requiredHistory = this.tradingAdvisor.historySize;
-
+  this.countdown = this.requiredHistory;
   // define the indicators we need
   this.addIndicator('dema', 'DEMA', this.settings);
 }
 
 // what happens on every new candle?
 method.update = function(candle) {
-  log.info('#', 'Countdown:', this.requiredHistory - dema.short.age, 'candles')
+  this.countdown--
+  log.info('#', 'Countdown:', this.countdown, 'candles')
 }
 
 // for debugging purposes: log the last calculated
