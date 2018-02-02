@@ -76,7 +76,8 @@ method.log = function () {
 //Preload EMAs
 method.preloadEma = function (sma, vals) {
   if (vals != null && vals.length > 0) {
-    //Put oldest vals in first
+    //Preload arrays and internal SMA indicator price arrays ordered newest to oldest.
+    //So reverse preload and updates from oldest to newest
     vals = vals.reverse();
     for (var i = 0; i < vals.length; i++) {
       sma.update(vals[i]);
@@ -127,10 +128,10 @@ method.getSettingsWithIndicatorHistory = function () {
   let mp = this.indicators.medium.prices;
   let lp = this.indicators.long.prices;
   let o = _.clone(this.settings);
-  //Preload arrays ordered newest to oldest for readability
-  o.preload.short = sp.reverse().slice(sp.length - o.short, sp.length);
-  o.preload.medium = mp.reverse().slice(mp.length - o.medium, mp.length);
-  o.preload.long = lp.reverse().slice(lp.length - o.long, lp.length);
+  //SMA indicator price arrays and Preload arrays ordered newest to oldest
+  o.preload.short = sp.slice(0, o.short);
+  o.preload.medium = mp.slice(0, o.medium);
+  o.preload.long = lp.slice(0, o.long);
   return o;
 }
 
