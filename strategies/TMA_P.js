@@ -127,9 +127,10 @@ method.getSettingsWithIndicatorHistory = function () {
   let mp = this.indicators.medium.prices;
   let lp = this.indicators.long.prices;
   let o = _.clone(this.settings);
-  o.preload.short = sp.slice(sp.length - o.short, sp.length);
-  o.preload.medium = mp.slice(mp.length - o.medium, mp.length);
-  o.preload.long = lp.slice(lp.length - o.long, lp.length);
+  //Preload arrays ordered newest to oldest for readability
+  o.preload.short = sp.reverse().slice(sp.length - o.short, sp.length);
+  o.preload.medium = mp.reverse().slice(mp.length - o.medium, mp.length);
+  o.preload.long = lp.reverse().slice(lp.length - o.long, lp.length);
   return o;
 }
 
