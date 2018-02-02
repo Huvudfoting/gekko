@@ -46,7 +46,7 @@ method.check = function () {
     log.info('#', this.age, 'GO SHORT! (S < M and M > L)');
     this.advice('short')
   } else if (((short > medium) && (medium < long))) {
-    log.info('#', this.age, 'GO SHORT! (S < M and M < L)');
+    log.info('#', this.age, 'GO SHORT! (S > M and M < L)');
     this.advice('short')
   } else {
     log.info('#', this.age, 'UNDECIDED');
