@@ -20,18 +20,18 @@ method.init = function () {
 
   if(success) {
     log.info('#', 'Preloading SMAs from config');
-    this.preloadEma(this.indicators.short, this.settings.preload.short);
-    this.preloadEma(this.indicators.medium, this.settings.preload.medium);
-    this.preloadEma(this.indicators.long, this.settings.preload.long);
+    this.preloadEma(this.indicators.short, this.settings.preload);
+    this.preloadEma(this.indicators.medium, this.settings.preload);
+    this.preloadEma(this.indicators.long, this.settings.preload);
   }
 }
 
 method.update = function (candle) {
   this.current = candle;
   // THE BUG BY UPDATING THESE HERE SO THEY UPDATE TWICE INCREASES PROFITS IN MY TESTS (!!!)
-  this.indicators.short.update(candle.close)
-  this.indicators.medium.update(candle.close)
-  this.indicators.long.update(candle.close)
+  this.indicators.short.update(candle.close);
+  this.indicators.medium.update(candle.close);
+  this.indicators.long.update(candle.close);
 }
 
 method.check = function () {
@@ -64,9 +64,9 @@ method.log = function () {
   log.info('# P:', this.current.close.toFixed(2), 'S:', s.result.toFixed(2), 'M:', m.result.toFixed(2), 'L:', l.result.toFixed(2));
   /*
   log.info('#', 'Age:', this.age, 'candles');
-  log.debug('#', 'short =', this.priceArr2str(s.prices, s.prices.length - this.settings.short, s.prices.length));
-  log.debug('#', 'medium =', this.priceArr2str(m.prices, m.prices.length - this.settings.medium, m.prices.length));
-  log.debug('#', 'long =', this.priceArr2str(l.prices, l.prices.length - this.settings.long, l.prices.length));
+  log.debug('#', 'short =', this.priceArr2str(s.prices, this.settings.short));
+  log.debug('#', 'medium =', this.priceArr2str(m.prices, this.settings.length));
+  log.debug('#', 'long =', this.priceArr2str(l.prices, this.settings.long));
   */
 
   //Save indicator history to file 
@@ -75,12 +75,14 @@ method.log = function () {
 
 //Preload EMAs
 method.preloadEma = function (sma, vals) {
+  //Set age if needed
+  if(vals.length < this.age) this.age = vals.length;
+
   if (vals != null && vals.length > 0) {
     //Preload arrays and internal SMA indicator price arrays ordered newest to oldest.
-    //So reverse preload and updates from oldest to newest
-    vals = vals.reverse();
-    for (var i = 0; i < vals.length; i++) {
-      sma.update(vals[i]);
+    let cVals = _.clone(vals)
+    for (var i = 0; i < cVals.length; i++) {
+      sma.update(cVals[i]);
     }
     log.info('#', 'Preloaded:', this.priceArr2str(sma.prices, 0, sma.prices.length));
     return;
@@ -93,7 +95,7 @@ method.saveIndicatorHistory = function () {
   const fs = require('fs');
   let o = this.getSettingsWithIndicatorHistory();
 
-  fs.writeFile(this.indicatorHistoryFile, JSON.stringify(o, null, ' '), (err) => {
+  fs.writeFile(this.indicatorHistoryFile, JSON.stringify(o, null, 1), (err) => {
     // log error
     if (err) {
       log.warn('# Failed to save history', err)
@@ -124,26 +126,17 @@ method.settingsFromHistoryFile = function () {
 
 //Get settings object with updated indicator history
 method.getSettingsWithIndicatorHistory = function () {
-  let sp = this.indicators.short.prices;
-  let mp = this.indicators.medium.prices;
   let lp = this.indicators.long.prices;
   let o = _.clone(this.settings);
   //SMA indicator price arrays and Preload arrays ordered newest to oldest
-  o.preload.short = sp.slice(0, o.short);
-  o.preload.medium = mp.slice(0, o.medium);
-  o.preload.long = lp.slice(0, o.long);
+  o.preload = lp.slice(0, o.long);
   return o;
 }
 
 //Serialize price arrays 
-method.priceArr2str = function (numArr, start, stop) {
-  let str = '[';
-  for (let i = start; i < stop; i++) {
-    if (i > start) str += ', ';
-    str += numArr[i].toFixed(2);
-  }
-  str += ']'
-  return str;
+method.priceArr2str = function (numArr, elm) {
+  let cArr = _.clone(numArr).reverse();
+  return JSON.stringify(cArr, null, 0)
 }
 
 module.exports = method;
