@@ -75,9 +75,6 @@ method.log = function () {
 
 //Preload EMAs
 method.preloadEma = function (sma, vals) {
-  //Set age if needed
-  if(vals.length < this.age) this.age = vals.length;
-
   if (vals != null && vals.length > 0) {
     //Preload arrays and internal SMA indicator price arrays ordered newest to oldest.
     let cVals = _.clone(vals)
