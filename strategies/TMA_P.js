@@ -18,7 +18,7 @@ method.init = function () {
   this.addIndicator('medium', 'SMA', this.settings.medium)
   this.addIndicator('long', 'SMA', this.settings.long)
 
-  if(success) {
+  if (success) {
     log.info('#', 'Preloading SMAs from config');
     this.preloadEma(this.indicators.short, this.settings.preload);
     this.preloadEma(this.indicators.medium, this.settings.preload);
@@ -32,6 +32,8 @@ method.update = function (candle) {
   this.indicators.short.update(candle.close);
   this.indicators.medium.update(candle.close);
   this.indicators.long.update(candle.close);
+  //Update history
+  this.updateHistory(candle.close);
 }
 
 method.check = function () {
@@ -87,6 +89,14 @@ method.preloadEma = function (sma, vals) {
   log.warn('#', 'Could not preload');
 }
 
+//Update history queue state
+method.updateHistory = function (price) {
+  this.settings.preload.push(price.toFixed(2));
+  if (this.settings.preload.length > this.settings.long) {
+    this.settings.preload.shift();
+  }
+}
+
 //Write to file
 method.saveIndicatorHistory = function () {
   const fs = require('fs');
@@ -123,15 +133,13 @@ method.settingsFromHistoryFile = function () {
 
 //Get settings object with updated indicator history
 method.getSettingsWithIndicatorHistory = function () {
-  let lp = this.indicators.long.prices;
-  let o = _.clone(this.settings);
-  //SMA indicator price arrays and Preload arrays ordered newest to oldest
-  o.preload = lp.slice(0, o.long);
+  let o = this.settings;
   return o;
 }
 
 //Serialize price arrays 
 method.priceArr2str = function (numArr, elm) {
+  //Reverse order and to print newest first for readability
   let cArr = _.clone(numArr).reverse();
   return JSON.stringify(cArr, null, 0)
 }
