@@ -8,6 +8,7 @@ var method = {};
 // prepare everything our method needs
 method.init = function () {
   this.name = 'DEMA_SL'; //DEMA WITH STOP-LOSS
+  this.age = 0;
   this.prefix = '$';
   this.sl = this.getSLState(this.settings.stoploss);
   this.boughtIn = false;
@@ -17,11 +18,13 @@ method.init = function () {
 
   // define the indicators we need
   this.addIndicator('dema', 'DEMA', this.settings);
+  this.addIndicator('sma', 'SMA', this.settings.weight);
 }
 
 // what happens on every new candle?
 method.update = function (candle) {
   //Calculate stop loss state
+  this.age++;
   let sl = this.sl;
   if (sl.boughtCandle != null) {
     sl.inCurrency = candle.close - sl.boughtCandle.close;
@@ -31,14 +34,17 @@ method.update = function (candle) {
 }
 
 method.check = function (candle) {
-  var dema = this.indicators.dema;
-  var diff = dema.result;
-  var price = candle.close;
+  let dema = this.indicators.dema;
+  let sma = this.indicators.sma;
+  let resDEMA = dema.result;
+  let resSMA = sma.result;
+  let price = candle.close;
+  let diff = resSMA - resDEMA;
 
-  var message = '@ ' + price.toFixed(2) + ' (' + diff.toFixed(2) + ')';
+  let message = '@ ' + price.toFixed(5) + ' (' + resDEMA.toFixed(5) + '/' + diff.toFixed(5) + ')';
 
   //Check stop-loss and sell if needed
-  if(this.sl.activate) {
+  if (this.sl.activate) {
     log.warn(this.prefix, 'STOP-LOSS!', message);
     this.advice('short');
     this.sl = this.getSLState(this.settings.stoploss);
@@ -47,7 +53,7 @@ method.check = function (candle) {
   }
 
   if (diff > this.settings.thresholds.up) {
-    log.info(this.prefix, 'Uptrend', message);
+    log.debug('we are currently in uptrend', message);
 
     if (this.currentTrend !== 'up') {
       this.currentTrend = 'up';
@@ -59,7 +65,7 @@ method.check = function (candle) {
       this.advice();
 
   } else if (diff < this.settings.thresholds.down) {
-    log.info(this.prefix, 'Downtrend', message);
+    log.debug('we are currently in a downtrend', message);
 
     if (this.currentTrend !== 'down') {
       this.currentTrend = 'down';
@@ -96,17 +102,19 @@ method.setTradeState = function (buy) {
 // EMAs and diff.
 method.log = function () {
   var dema = this.indicators.dema;
+  let sma = this.indicators.sma;
   let sl = this.sl;
   let sSL = 'SL: ' + sl.inPercent.toFixed(1) + ' (of ' + sl.allowed + ')';
-  let sDiff = '(' + dema.result.toFixed(2) + ')';
+  let sDiff = '(' + (sma.result - dema.result).toFixed(5) + ')';
   let inMarket = '[UNDECIDED]';
   if (this.hasTraded) {
     inMarket = (this.boughtIn) ? '[IN]' : '[OUT]';
   }
-  log.info(this.prefix, '----- Candle', dema.short.age, '-----');
+  log.info(this.prefix, '----- Candle', dema.inner.age, '-----');
   log.info(this.prefix, 'IN:', inMarket, sSL);
-  log.info(this.prefix, 'DEMA S:', dema.short.result.toFixed(2), 'L:', dema.long.result.toFixed(2), sDiff);
-  log.info(this.prefix, '--- End Candle', dema.short.age, '---');
+  log.info(this.prefix, 'DEMA:', dema.result.toFixed(5), '(I:', dema.inner.result.toFixed(5), 'O:', dema.outer.result.toFixed(5), ')');
+  log.info(this.prefix, 'SMA:', sma.result.toFixed(5), 'DIFF:', sDiff);
+  log.info(this.prefix, '--- End Candle', dema.inner.age, '---');
 }
 
 module.exports = method;
